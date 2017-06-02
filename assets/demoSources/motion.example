@@ -1,0 +1,12 @@
+class View extends React.Component {
+  render() {
+    return (
+        <div>
+          <Motion defaultStyle={{x: 0}} style={{x: spring(10)}}>
+            {value => <div className="Box" style={{fontSize: value.x*5}}>{value.x}</div>}
+          </Motion>
+        </div>
+    );
+  }
+}
+render(<View />, mountNode);

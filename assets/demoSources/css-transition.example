@@ -1,0 +1,52 @@
+const Example = ({items, removeItemHandler}) => {
+  return (
+    <div>
+      <CSSTransitionGroup transitionName="example" transitionEnterTimeout={700} transitionLeaveTimeout={700}>
+        {items.map(function(item) {
+          return (
+            <div key={item.id} className="todo-item" onClick={removeItemHandler.bind(null, item)}>
+              {item.name}
+            </div>
+          );
+        })}
+      </CSSTransitionGroup>
+    </div>
+  );
+}
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.add = this.add.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.state = {
+      data: [],
+      name:''
+    };
+  }
+  handleChange(e){
+    this.setState({name:e.target.value})
+  }
+  add(){
+    var arr = this.state.data.slice();
+    arr.push({'id':(new Date()).getTime(),'name':this.state.name});
+    this.setState({data:arr});
+  }
+  remove(r) {
+    var arr = this.state.data.slice();
+    arr = arr.filter((item) => {
+      return item.id != r.id;
+    });
+    this.setState({data:arr});
+  }
+  render() {
+    return (
+      <div>
+        <input onChange={this.handleChange} type="text" />
+        <input onClick={this.add} type="button" value="Add" />
+        <Example items={this.state.data} removeItemHandler={this.remove.bind(this)} />
+      </div>
+    );
+  }
+}
+render(<App />, mountNode)

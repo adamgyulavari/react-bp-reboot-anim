@@ -1,0 +1,102 @@
+//use react-addons-transition-group to handle the
+// enter and leave animations of the component
+const appearAnim = (utils) => {
+  return new TimelineMax()
+    .from(utils.target, 0.7, {
+      scale: 0,
+      ease: Back.easeOut,
+      onComplete: utils.options.callback,
+    })
+}
+
+const leaveAnim = (utils) => {
+  return new TimelineMax()
+    .to(utils.target, 0.5, {
+      scale: 0,
+      ease: Sine.easeOut,
+      onComplete: utils.options.callback,
+    })
+}
+
+var COLORS = ['#0074D9', '#FF851B', '#FF4136', '#85144b', '#2ECC40']
+
+class Ccircle extends React.Component {
+  componentWillEnter(callback) {
+    console.log("ccircle enter")
+    this.addAnimation(appearAnim, {callback: callback})
+  }
+  componentWillLeave(callback) {
+    console.log('componentWillLeave', callback)
+    this.addAnimation(leaveAnim, {callback: callback})
+  }
+  handleClick = (e) => {
+    e.stopPropagation()
+    this.props.onClick(this.props.id)
+  }
+  render() {
+    var r = 40
+    var style = {
+      position: 'absolute',
+      left: this.props.x - r,
+      top: this.props.y - r,
+      backgroundColor: this.props.color,
+      width: r * 2,
+      height: r * 2,
+      borderRadius: r,
+    }
+
+    return <div style={style} onClick={this.handleClick}/>
+  }
+}
+
+var Circle = GSAP()(Ccircle)
+
+var nextId = 0
+class Demo extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {circles: []}
+  }
+  handleClick = (e) => {
+    var rootNode = ReactDOM.findDOMNode(this)
+    var {top, left} = rootNode.getBoundingClientRect()
+    var newCircle = {
+      id: nextId++,
+      color: _.sample(COLORS),
+      x: e.clientX - left,
+      y: e.clientY - top,
+    }
+    this.setState({circles: this.state.circles.concat(newCircle)})
+    console.log(this.state)
+  }
+  handleRemoveRequest = (id) => {
+    const circles = this.state.circles
+    const circle = _.find(circles, {id: id})
+    this.setState({circles: _.without(circles, circle)})
+  }
+  render() {
+    var containerStyle = {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+    }
+    var handleRemove = this.handleRemoveRequest
+    return (
+      <div style={containerStyle} onClick={this.handleClick}>
+        <TransitionGroup>
+          {this.state.circles.map(function(circle) {
+            return (
+              <Circle
+                key={circle.id}
+                {...circle}
+                onClick={handleRemove}
+              />
+            )
+          })}
+        </TransitionGroup>
+    </div>
+    )
+  }
+}
+
+render(<Demo/>, mountNode)
